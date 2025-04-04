@@ -1,0 +1,32 @@
+{
+  "namingConventions": [
+    {
+      "scope": "database.tables",
+      "convention": "snake_case",
+      "pluralization": "plural",
+      "description": "Database tables should use snake_case and be plural (e.g., `conflict_events`, `infrastructure_points`)."
+    },
+    {
+      "scope": "python.files",
+      "convention": "snake_case",
+      "extension": ".py",
+      "description": "Python filenames should use snake_case (e.g., `data_processing.py`)."
+    },
+    {
+      "scope": "python.variables",
+      "convention": "snake_case",
+      "description": "Python variables and function names should use snake_case (e.g., `event_count`, `calculate_intersection()`)."
+    },
+    {
+      "scope": "javascript.react.files",
+      "convention": "kebab-case",
+      "extension": ".jsx",
+      "description": "React component filenames should use kebab-case (e.g., `map-visualization.jsx`)."
+    },
+    {
+      "scope": "javascript.variables",
+      "convention": "camelCase",
+      "description": "JavaScript variables and function names should use camelCase (e.g., `mapInstance`, `fetchEventData()`)."
+    }
+  ]
+}

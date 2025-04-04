@@ -1,0 +1,43 @@
+{
+  "testingRules": [
+    {
+      "ruleId": "TEST-UNIT-001",
+      "description": "Write unit tests for backend Python code using the pytest framework.",
+      "enforcement": "Mandatory",
+      "targetScope": "Backend (Python)"
+    },
+    {
+      "ruleId": "TEST-NLQ-001",
+      "description": "Unit tests for the NLQ pipeline components (`openai_query`, `validate_query`, `clean_query`) should include mock responses and cover edge cases.",
+      "enforcement": "Mandatory",
+      "targetScope": "Backend (NLQ)"
+    },
+    {
+      "ruleId": "TEST-LOG-001",
+      "description": "Integrate logging within test runs to capture behaviour and diagnose failures.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "TEST-PERF-001",
+      "description": "Log performance benchmarks (e.g., query execution time, API response time) during specific test runs or load tests.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "TEST-CI-001",
+      "description": "Integrate automated tests into the CI/CD pipeline.",
+      "enforcement": "Mandatory",
+      "status": "Next Step"
+    },
+    {
+      "ruleId": "TEST-COVERAGE-001",
+      "description": "Establish and track code coverage targets for unit tests.",
+      "enforcement": "Recommended",
+      "status": "Next Step"
+    },
+    {
+      "ruleId": "TEST-E2E-001",
+      "description": "Consider implementing end-to-end tests simulating user workflows (e.g., NLQ query to map visualization).",
+      "enforcement": "Future Consideration"
+    }
+  ]
+}

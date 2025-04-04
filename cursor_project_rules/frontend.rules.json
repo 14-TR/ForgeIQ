@@ -1,0 +1,50 @@
+{
+  "frontendRules": [
+    {
+      "ruleId": "FE-LANG-001",
+      "description": "Frontend development must use JavaScript with React 18.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-STATE-001",
+      "description": "Use Zustand for global state management.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-VIZ-001",
+      "description": "Use Deck.gl built on MapLibre GL JS for primary map visualizations.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-VIZ-002",
+      "description": "Leverage Deck.gl layers like HexagonLayer and ScatterplotLayer for visualizing data density and individual points.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "FE-STYLE-001",
+      "description": "Use Tailwind CSS for utility-first styling.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-UI-001",
+      "description": "Utilize Material UI components for building the user interface elements (buttons, sliders, panels, etc.).",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "FE-INTERACT-001",
+      "description": "Implement interactive features like map brushing, temporal sliders (e.g., TimeSlider), tooltips, and detail panels.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-ARCH-001",
+      "description": "Structure React application using functional components and hooks (e.g., `use-fetch-events.js`, `use-nlq-handler.js`).",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "FE-EXPORT-001",
+      "description": "Provide functionality to export visualized data or analysis results in standard formats like CSV and GeoJSON.",
+      "enforcement": "Mandatory",
+      "status": "Active Development"
+    }
+  ]
+}

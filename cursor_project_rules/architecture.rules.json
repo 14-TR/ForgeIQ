@@ -1,0 +1,85 @@
+{
+  "name": "ForgeIQ Architecture Rules",
+  "description": "Enforce modular design patterns and project structure",
+  "rules": {
+    "moduleStructure": {
+      "enforce": true,
+      "patterns": {
+        "backend": {
+          "root": "backend/",
+          "modules": [
+            "api/",
+            "core/",
+            "db/",
+            "gis/",
+            "services/",
+            "utils/"
+          ],
+          "required_files": [
+            "__init__.py",
+            "models.py",
+            "schemas.py", 
+            "crud.py",
+            "dependencies.py",
+            "router.py"
+          ]
+        },
+        "frontend": {
+          "root": "frontend/",
+          "modules": [
+            "components/",
+            "hooks/",
+            "pages/",
+            "services/",
+            "store/",
+            "utils/"
+          ]
+        }
+      }
+    },
+    "dependencies": {
+      "enforce": true,
+      "rules": {
+        "noCircularDependencies": true,
+        "maxDependencyDepth": 3,
+        "isolateGISLogic": true,
+        "separateBusinessLogic": true
+      }
+    },
+    "interfaces": {
+      "enforce": true,
+      "rules": {
+        "useTypedDicts": true,
+        "usePydanticModels": true,
+        "explicitReturnTypes": true,
+        "documentPublicAPIs": true
+      }
+    },
+    "stateManagement": {
+      "enforce": true, 
+      "rules": {
+        "useZustandStore": true,
+        "atomicUpdates": true,
+        "immutableState": true,
+        "persistSensitiveData": false
+      }
+    },
+    "errorHandling": {
+      "enforce": true,
+      "rules": {
+        "customExceptions": true,
+        "gracefulDegradation": true,
+        "loggingRequired": true
+      }
+    },
+    "configuration": {
+      "enforce": true,
+      "rules": {
+        "environmentBased": true,
+        "useSecretsManagerForSecrets": true,
+        "useEnvFilesForNonSecrets": true,
+        "validateConfig": true
+      }
+    }
+  }
+}

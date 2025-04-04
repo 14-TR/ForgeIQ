@@ -1,0 +1,57 @@
+{
+  "gisStandards": [
+    {
+      "ruleId": "GIS-CRS-001",
+      "description": "All geospatial datasets must be standardized to EPSG:4326 (WGS 84).",
+      "enforcement": "Mandatory",
+      "rationale": "Ensures interoperability and consistent spatial analysis across datasets."
+    },
+    {
+      "ruleId": "GIS-IDX-001",
+      "description": "Spatial columns (geometry/geography type, typically named 'geom') must have a GiST index.",
+      "enforcement": "Mandatory",
+      "rationale": "Accelerates spatial queries like intersections and proximity searches (ST_Intersects, ST_DWithin)."
+    },
+    {
+      "ruleId": "GIS-IDX-002",
+      "description": "Timestamp columns used for temporal filtering (e.g., 'event_date') in large tables (like VIIRS) should have a BRIN index.",
+      "enforcement": "Recommended",
+      "rationale": "Improves performance for large range queries on time-correlated data."
+    },
+    {
+      "ruleId": "GIS-JOIN-001",
+      "description": "Spatial joins should primarily use ST_DWithin() or ST_Intersects() for performance and clarity.",
+      "enforcement": "Recommended",
+      "rationale": "These functions leverage spatial indexes effectively."
+    },
+    {
+      "ruleId": "GIS-BUFFER-001",
+      "description": "Use PostGIS geography type for buffering operations when high accuracy over large distances is required.",
+      "enforcement": "Conditional",
+      "rationale": "Geography type handles calculations on the spheroid correctly, crucial for accurate buffering in degrees (EPSG:4326)."
+    },
+    {
+      "ruleId": "GIS-FILTER-001",
+      "description": "Apply data-specific quality or confidence filters where applicable (e.g., VIIRS confidence = 'h').",
+      "enforcement": "Mandatory",
+      "rationale": "Ensures analysis is based on reliable data points."
+    }
+  ],
+  "nlqRequirements": [
+    {
+      "ruleId": "NLQ-GPT-001",
+      "description": "OpenAI API calls for SQL generation must use GPT-4o with temperature set to 0 for deterministic outputs.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "NLQ-GPT-002",
+      "description": "Input prompts to GPT-4o must be carefully engineered to include relevant schema information and constraints.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "NLQ-GPT-003",
+      "description": "Token usage for GPT-4o calls should be monitored and ideally kept below a maximum limit (e.g., 1024 tokens per request) to manage costs and latency.",
+      "enforcement": "Recommended"
+    }
+  ]
+}

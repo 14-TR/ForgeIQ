@@ -1,0 +1,50 @@
+{
+  "constraints": {
+    "backend": {
+      "language": "Python",
+      "version": ">=3.12",
+      "framework": "FastAPI",
+      "database": "PostgreSQL",
+      "databaseVersion": ">=15",
+      "orm": "None (use direct SQL or query builder)",
+      "validation": "Pydantic"
+    },
+    "frontend": {
+      "framework": "React",
+      "version": ">=18",
+      "stateManagement": "Zustand",
+      "styling": "Tailwind CSS",
+      "componentLibrary": "Material UI",
+      "mapping": [
+        "Deck.gl",
+        "MapLibre"
+      ]
+    },
+    "gis": {
+      "databaseExtension": "PostGIS",
+      "extensionVersion": ">=3.3",
+      "pythonLibraries": [
+        "GeoPandas",
+        "Shapely",
+        "osm2pgrouting"
+      ]
+    },
+    "ai": {
+      "nlqProvider": "OpenAI GPT-4o"
+    },
+    "cloud": {
+      "provider": "AWS",
+      "services": [
+        "Secrets Manager",
+        "S3",
+        "EC2"
+      ]
+    },
+    "server": {
+      "asgi": "Uvicorn"
+    },
+    "testing": {
+      "framework": "pytest"
+    }
+  }
+}

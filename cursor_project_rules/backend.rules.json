@@ -1,0 +1,54 @@
+{
+  "backendRules": [
+    {
+      "ruleId": "BE-LANG-001",
+      "description": "Backend development must use Python 3.12 or later.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "BE-FW-001",
+      "description": "Use FastAPI for building RESTful APIs.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "BE-DB-001",
+      "description": "Use PostgreSQL 15+ with the PostGIS extension for all geospatial data storage and querying.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "BE-SERVER-001",
+      "description": "Deploy FastAPI applications using Uvicorn as the ASGI server.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "BE-VALID-001",
+      "description": "Use Pydantic models for API request/response validation and data serialization.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "BE-SQL-001",
+      "description": "Utilize libraries like sqlparse for parsing or manipulating SQL strings when necessary.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "BE-CONF-001",
+      "description": "Manage environment variables using python-dotenv, especially for local development.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "BE-LOG-001",
+      "description": "Implement structured logging using Python's standard logging module.",
+      "enforcement": "Mandatory"
+    },
+    {
+      "ruleId": "BE-HTTP-001",
+      "description": "Use the `requests` library for making external HTTP calls.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "BE-GISLIB-001",
+      "description": "Leverage GeoPandas and Shapely for complex spatial operations within the Python backend when PostGIS functions are insufficient or less convenient.",
+      "enforcement": "Recommended"
+    }
+  ]
+}

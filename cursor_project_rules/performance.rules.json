@@ -1,0 +1,46 @@
+{
+  "performanceRules": [
+    {
+      "ruleId": "PERF-DB-IDX-001",
+      "description": "Ensure appropriate database indexes (GiST for spatial, BRIN for large temporal) are created and maintained.",
+      "enforcement": "Mandatory",
+      "relatedRule": "GIS-IDX-001, GIS-IDX-002"
+    },
+    {
+      "ruleId": "PERF-DB-QUERY-001",
+      "description": "Analyze and optimize complex or slow-running PostGIS queries using EXPLAIN ANALYZE.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "PERF-API-ASYNC-001",
+      "description": "Leverage FastAPI's async capabilities for I/O-bound operations (database calls, external API requests) to improve concurrency.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "PERF-FE-RENDER-001",
+      "description": "Optimize React component rendering using techniques like memoization (React.memo) and efficient state management.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "PERF-FE-VIZ-001",
+      "description": "Optimize Deck.gl layer performance by managing data updates efficiently and selecting appropriate layer types (e.g., Hexbin vs Scatterplot for large datasets).",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "PERF-FE-BUNDLE-001",
+      "description": "Analyze and optimize frontend bundle size using code splitting and other build tool features.",
+      "enforcement": "Recommended"
+    },
+    {
+      "ruleId": "PERF-NLQ-TOKEN-001",
+      "description": "Monitor and manage OpenAI token usage to control costs and latency, potentially implementing request batching or prompt optimization.",
+      "enforcement": "Recommended",
+      "relatedRule": "GIS-NLQ-003"
+    },
+    {
+      "ruleId": "PERF-INFRA-SCALE-001",
+      "description": "Monitor system load (EC2, Database) and plan for scaling infrastructure as needed.",
+      "enforcement": "Recommended"
+    }
+  ]
+}
