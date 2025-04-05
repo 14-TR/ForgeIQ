@@ -1,9 +1,14 @@
-import boto3
+# Standard library imports
 import json
 import os
-from typing import Dict, List, Optional
 from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+# Third-party imports
+import boto3
 from botocore.exceptions import ClientError
+
+# Local application imports
 from shared.config.aws_config import AWSConfig
 
 class AWSSecretManager:

@@ -1,5 +1,6 @@
-from openai_client import CLIENT
-from prompt_config import PROMPT # Import system prompt
+# Local application imports
+from .openai_client import CLIENT
+from .prompt_config import PROMPT  # Import system prompt
 
 def openai_query(user_prompt):
     response = CLIENT.chat.completions.create(

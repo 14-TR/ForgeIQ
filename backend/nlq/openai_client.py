@@ -1,5 +1,8 @@
+# Third-party imports
 import openai
-from aws_secret_mgt import get_openai_api_key
+
+# Local application imports
+from shared.secrets.aws_secret_mgt import get_openai_api_key
 
 # Retrieve OpenAI API key securely
 api_key = get_openai_api_key()
@@ -10,4 +13,4 @@ if not api_key:
 # Initialize OpenAI Client
 CLIENT = openai.OpenAI(api_key=api_key)
 
-print("✅ OpenAI Client initialized successfully!")
+# print("✅ OpenAI Client initialized successfully!") # Removed print statement

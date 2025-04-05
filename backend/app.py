@@ -1,14 +1,20 @@
-from fastapi import FastAPI, HTTPException
-from typing import List, Optional
-from pydantic import BaseModel
-from db_connect import DBConnection
-from aws_secret_mgt import get_db_credentials  
-from fastapi.middleware.cors import CORSMiddleware
-from openai_query import openai_query
-from nlq.clean_query import clean_query
-from nlq.validate_query import validate_query
-from db.execute_query import execute_query
+# Standard library imports
 from decimal import Decimal
+from typing import List, Optional
+
+# Third-party imports
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+# Local application imports
+# from aws_secret_mgt import get_db_credentials  # Assuming this is correctly located/managed
+from shared.secrets.aws_secret_mgt import get_db_credentials # Corrected import path
+from db.execute_query import execute_query
+# from db_connect import DBConnection # Removed as unused
+from nlq.clean_query import clean_query
+from nlq.openai_query import openai_query
+from nlq.validate_query import validate_query
 
 # Initialize FastAPI
 app = FastAPI()
@@ -61,10 +67,6 @@ class Event(BaseModel):
     notes: Optional[str] = None
     fatalities: Optional[int] = None
 
-# Utility function for decimal conversion
-def convert_decimal(value):
-    return float(value) if isinstance(value, Decimal) else value
-
 # Battles endpoint (Returns Only Last Year's Data)
 @app.get("/battles", response_model=List[Event])
 def get_recent_battles():
@@ -78,12 +80,16 @@ def get_recent_battles():
         if not most_recent_date:
             raise HTTPException(status_code=404, detail="No data found.")
 
+        # Extract the year from the most recent date
+        most_recent_year = most_recent_date.year
+
         # Query to fetch battles only from the last year of the most recent event
         query = f"""
             SELECT event_id_cnty, event_date::TEXT, year, time_precision, disorder_type, event_type,
                    country, admin1, admin2, admin3, location, latitude, longitude, geo_precision,
                    source, source_scale, notes, fatalities
             FROM battles
+            WHERE year = {most_recent_year}  -- Filter by the most recent year
             ORDER BY event_date DESC;
         """
 

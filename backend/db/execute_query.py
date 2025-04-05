@@ -1,5 +1,8 @@
+# Third-party imports
 import pandas as pd
-from db_connect import DBConnection
+
+# Local application imports
+from .db_connect import DBConnection
 
 def execute_query(query, log_bytes=False):
     """
