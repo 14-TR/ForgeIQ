@@ -22,4 +22,6 @@ venv/
 # Ignore .gitignore file
 .gitignore
 
+ConflictIQ.json
+
 

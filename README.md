@@ -24,10 +24,10 @@ ConflictIQ is a full-stack application designed for visualizing and querying geo
 *   **Backend:**
     *   Python
     *   FastAPI
-    *   Pandas (likely for data manipulation)
+    *   Pandas (for data manipulation)
     *   OpenAI API (for NLQ translation)
     *   AWS Secrets Manager (for database credentials)
-    *   Database (likely PostgreSQL based on query syntax, e.g., `::TEXT`)
+    *   Database (PostgreSQL, based on query syntax like `::TEXT`)
 *   **Shared:** Configuration and secrets management.
 
 ## Project Structure
@@ -38,7 +38,7 @@ ConflictIQ is a full-stack application designed for visualizing and querying geo
 │   ├── app.py       # Main FastAPI application file
 │   ├── db/          # Database interaction logic
 │   ├── nlq/         # Natural Language Query processing logic
-│   ├── pipeline/    # Data pipeline components (structure suggests this)
+│   ├── pipeline/    # Data pipeline components
 │   └── requirements.txt
 ├── frontend/        # React frontend application
 │   ├── src/         # Source files
@@ -128,15 +128,15 @@ ConflictIQ is a full-stack application designed for visualizing and querying geo
 
 *(Information about how the application is deployed, e.g., EC2, S3, should be added here based on CORS settings and potential infrastructure.)*
 
-Based on backend CORS settings, the deployment likely involves AWS:
+Based on backend CORS settings, the deployment involves AWS:
 
-*   **Frontend:** The React application is probably built for production (e.g., `npm run build` in the `frontend` directory) and the resulting static files (often in a `dist` or `build` folder) are hosted on **Amazon S3** configured for static website hosting. The S3 endpoint mentioned in CORS is `http://cm-react-app.s3-website.us-east-2.amazonaws.com`.
-*   **Backend:** The FastAPI application appears to run on an **Amazon EC2** instance. The instance IP mentioned in CORS is `18.218.227.30` on port `8000`. Deployment might involve:
+*   **Frontend:** The React application is built for production (e.g., `npm run build` in the `frontend` directory) and the resulting static files (often in a `dist` or `build` folder) are hosted on **Amazon S3** configured for static website hosting. The S3 endpoint mentioned in CORS is `http://cm-react-app.s3-website.us-east-2.amazonaws.com`.
+*   **Backend:** The FastAPI application runs on an **Amazon EC2** instance. The instance IP mentioned in CORS is `18.218.227.30` on port `8000`. Deployment involves:
     *   Setting up a reverse proxy (like Nginx or Caddy) on the EC2 instance.
     *   Running the FastAPI app using a process manager (like systemd or Supervisor) or within a container (like Docker).
     *   Ensuring the EC2 instance has an appropriate IAM role attached, granting it permissions to retrieve all necessary secrets (database credentials, API keys, etc.) from AWS Secrets Manager.
     *   No separate configuration of environment variables for secrets is needed on the instance if the IAM role is correctly configured.
-*   **Database:** The database (likely PostgreSQL) needs to be accessible from the EC2 instance (e.g., using Amazon RDS or running on another instance).
+*   **Database:** The PostgreSQL database needs to be accessible from the EC2 instance (e.g., using Amazon RDS or running on another instance).
 
 **(Provide specific build commands, deployment scripts, infrastructure-as-code details (e.g., Terraform, CloudFormation templates), CI/CD pipeline information, and configuration management instructions here.)**
 
@@ -156,3 +156,5 @@ Contributions are welcome! Please follow these general guidelines:
 8.  Ensure your PR passes any configured CI checks.
 
 **(Add specific details about code style guides, testing requirements, the branching model, issue tracking (e.g., GitHub Issues), and communication channels for contributors.)**
+
+### Welcome to the Forge.

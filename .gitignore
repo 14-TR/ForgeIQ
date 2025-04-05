@@ -11,6 +11,7 @@ frontend/public/reportWebVitals.js
 frontend/public/setupTests.js
 frontend/public/src/index.css
 cursor_project_rules/*
+.cursorrules
 .gitignore
 .env
 .env.local
@@ -18,4 +19,5 @@ cursor_project_rules/*
 .env.test.local
 .env.production.local
 venv/*
+ConflictIQ.json
 
