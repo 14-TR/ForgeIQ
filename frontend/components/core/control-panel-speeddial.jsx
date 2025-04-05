@@ -17,11 +17,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import CalculateIcon from "@mui/icons-material/Calculate";
 
 // Lazy load sub-panels
-const SearchAggregationPanel = lazy(() => import("./search-aggregation-panel"));
-const LayerControlPanel = lazy(() => import("./layer-control-panel"));
-const AnalysisControlPanel = lazy(() => import("./analysis-control-panel"));
-const CentralTendencyPanel = lazy(() => import("./central-tendency-panel"));
-const InfoPage = lazy(() => import("./info-page"));
+const SearchAggregationPanel = lazy(() => import("../panels/search-aggregation-panel"));
+const LayerControlPanel = lazy(() => import("../panels/layer-control-panel"));
+const AnalysisControlPanel = lazy(() => import("../panels/analysis-control-panel"));
+const CentralTendencyPanel = lazy(() => import("../panels/central-tendency-panel"));
+const InfoPage = lazy(() => import("../panels/info-page"));
 
 const headerHeight = 64;
 
