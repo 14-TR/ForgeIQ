@@ -1,5 +1,4 @@
 # Standard library imports
-from decimal import Decimal
 from typing import List, Optional
 
 # Third-party imports
