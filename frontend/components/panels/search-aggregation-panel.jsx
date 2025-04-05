@@ -6,10 +6,10 @@ import { Button, Box, Typography, Table, TableBody, TableCell, TableContainer, T
 import { MapContext, ActionTypes } from "../../context/MapContext";
 
 // Import NLQ hook
-import { useNlqHandler } from "../../hooks/use-nlq-handler";
+import { useNlqHandler } from "../../hooks/use-nlq-handler.js";
 
-// Assuming NlqSearchBar is also in ./panels or needs path adjustment
-import NlqSearchBar from "./nlq-search-bar";
+// Corrected path for NlqSearchBar
+import NlqSearchBar from "../nlq/nlq-search-bar.jsx";
 
 /**
  * This panel includes:

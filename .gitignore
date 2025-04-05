@@ -10,3 +10,12 @@ frontend/public/registerServiceWorker.js
 frontend/public/reportWebVitals.js
 frontend/public/setupTests.js
 frontend/public/src/index.css
+cursor_project_rules/*
+.gitignore
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+venv/*
+

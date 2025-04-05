@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { ActionTypes } from "../context/MapContext"; // Import actions
+import { API_BASE_URL } from "../config";
 
 // Adjust to match your EC2 FastAPI server
-const NLQ_API_URL = "http://3.21.183.77:8000/nlq";
+const NLQ_API_URL = `${API_BASE_URL}/nlq`;
 
 // Hook now accepts the dispatch function from the context
 export const useNlqHandler = (dispatch) => {

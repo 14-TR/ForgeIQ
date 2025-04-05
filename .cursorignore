@@ -1,0 +1,25 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build output directories
+dist/
+build/
+
+# Ignore all log files
+*.log
+
+# Ignore specific configuration files
+secrets.yaml
+.env
+
+
+# Ignore specific directories anywhere in the project
+**/temp/
+
+# Ignore venv directory
+venv/
+
+# Ignore .gitignore file
+.gitignore
+
+

@@ -1,15 +1,14 @@
 import sys
 import os
 
-# Add the parent directory (backend) to the Python path
-# This allows importing from sibling directories like 'db'
-backend_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(backend_dir))
+# Remove sys.path manipulation
+# backend_dir = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.dirname(backend_dir))
 
-# Now import from the pipeline package
-from pipeline.data_pipeline import DataPipeline
-from pipeline.config import get_pipeline_config
-from pipeline.utils import setup_logger
+# Use relative imports
+from .data_pipeline import DataPipeline
+from .config import get_pipeline_config
+from .utils import setup_logger
 
 def main():
     logger = setup_logger(__name__)

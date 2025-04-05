@@ -7,8 +7,6 @@ export const createLayers = ({
   showBattlesLayer = true,
   showExplosionsLayer = true,
   showViirsLayer = true,
-  onHover = null,
-  onClick = null,
   brushingEnabled = false,
   brushingRadius = 0,
   brushingExtension = null,
@@ -236,6 +234,7 @@ export const createLayers = ({
         extruded: true,
         pickable: true,
         autoHighlight: true,
+        gpuAggregation: false,
         visible: showBattlesLayer,
         material: {
           ambient: 0.64,
@@ -243,8 +242,6 @@ export const createLayers = ({
           shininess: 32,
           specularColor: [150, 0, 0]
         },
-        onHover,
-        onClick,
         ...getBrushingProps()
       })
     );
@@ -270,6 +267,7 @@ export const createLayers = ({
         extruded: true,
         pickable: true,
         autoHighlight: true,
+        gpuAggregation: false,
         visible: showExplosionsLayer,
         material: {
           ambient: 0.64,
@@ -277,8 +275,6 @@ export const createLayers = ({
           shininess: 32,
           specularColor: [200, 100, 0]
         },
-        onHover,
-        onClick,
         ...getBrushingProps()
       })
     );
@@ -304,6 +300,7 @@ export const createLayers = ({
         extruded: true,
         pickable: true,
         autoHighlight: true,
+        gpuAggregation: false,
         visible: showViirsLayer,
         material: {
           ambient: 0.64,
@@ -311,8 +308,6 @@ export const createLayers = ({
           shininess: 32,
           specularColor: [0, 150, 0]
         },
-        onHover,
-        onClick,
         ...getBrushingProps()
       })
     );
@@ -338,6 +333,7 @@ export const createLayers = ({
         extruded: true,
         pickable: true,
         autoHighlight: true,
+        gpuAggregation: false,
         visible: true,
         material: {
           ambient: 0.64,
@@ -345,8 +341,6 @@ export const createLayers = ({
           shininess: 32,
           specularColor: [106, 90, 205]
         },
-        onHover,
-        onClick,
         ...getBrushingProps()
       })
     );

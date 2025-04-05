@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useContext } from "react";
+import React, { useEffect, useRef, useCallback, useContext, useMemo } from "react";
 import DeckGL from "@deck.gl/react";
 import { Map } from "react-map-gl/maplibre";
 import { BrushingExtension } from '@deck.gl/extensions';
@@ -14,6 +14,7 @@ import { createLayers } from "../utils/layer-creator";
 import ControlPanelSpeedDial from "../components/core/control-panel-speeddial";
 import TimeSlider from "../components/ui/time-slider";
 import MapTooltip from "../components/map/map-tooltip";
+import HexagonPopup from "../components/map/hexagon-popup";
 
 // Removed custom hooks useFetchEvents, useNlqHandler
 
@@ -62,13 +63,26 @@ const DeckMap = () => {
   }, [dispatch]);
 
   const handleClick = useCallback((info) => {
+      // Log the received info object to debug
+      console.log("DeckGL onClick info:", info);
+      if (info.object && info.layer && info.layer.id.includes('-layer')) {
+          console.log("Clicked Hexagon object:", info.object);
+          // Specifically check for the points array
+          console.log("Hexagon points array:", info.object.points);
+      }
       dispatch({ type: ActionTypes.SET_CLICK_INFO, payload: info.picked ? info : null });
   }, [dispatch]);
 
+  const handleClosePopup = useCallback(() => {
+    dispatch({ type: ActionTypes.SET_CLICK_INFO, payload: null });
+  }, [dispatch]);
+
   const handleMouseMove = useCallback((event) => {
-     // Dispatch mouse position, reducer handles brushed data calculation if enabled
-      dispatch({ type: ActionTypes.SET_MOUSE_POSITION, payload: event.coordinate });
-  }, [dispatch]); // BrushingEnabled is handled in reducer
+    // Only dispatch mouse position if brushing is enabled
+    if (brushingEnabled) {
+        dispatch({ type: ActionTypes.SET_MOUSE_POSITION, payload: event.coordinate });
+    }
+  }, [dispatch, brushingEnabled]); // Add brushingEnabled to dependency array
   
   // Cleanup function (can remain if necessary for non-React cleanup)
   useEffect(() => {
@@ -86,27 +100,38 @@ const DeckMap = () => {
     };
   }, []);
   
-  // --- Layer Creation --- (Uses context state)
-  // Note: layerInfo is now calculated in MapProvider
-  const { layers } = createLayers({
-    eventData: activeData,
-    radius,
-    coverage,
-    showBattlesLayer,
-    showExplosionsLayer,
-    showViirsLayer,
-    showNlqLayer, // Pass NLQ layer visibility
-    onHover: handleHover,
-    onClick: handleClick,
-    brushingEnabled,
-    brushingRadius,
-    brushingExtension,
-    mousePosition
-  });
+  // --- Layer Creation --- (Memoized)
+  // Note: layerInfo is now calculated in MapProvider, but we use its state here
+  const { layers } = useMemo(() => {
+    console.log("Recreating layers..."); // Log when layers are actually recreated
+    return createLayers({
+        eventData: activeData,
+        radius,
+        coverage,
+        showBattlesLayer,
+        showExplosionsLayer,
+        showViirsLayer,
+        showNlqLayer, // Pass NLQ layer visibility
+        brushingEnabled,
+        brushingRadius,
+        brushingExtension,
+        mousePosition
+      });
+    },
+    // Dependencies for layer recreation:
+    [
+      activeData, radius, coverage, 
+      showBattlesLayer, showExplosionsLayer, showViirsLayer, showNlqLayer, 
+      brushingEnabled, brushingRadius, brushingExtension, mousePosition
+    ]
+  );
 
   // --- Render Logic ---
   if (loading && eventData.length === 0) return <div>Loading data...</div>; // Show loading only initially
   if (error) return <div>Error loading initial data: {error}</div>;
+
+  // Determine if the clicked item is a hexagon layer
+  const showHexagonPopup = clickInfo && clickInfo.layer && clickInfo.layer.id.includes('-layer');
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100vw", overflow: "hidden" }}>
@@ -152,9 +177,13 @@ const DeckMap = () => {
         Data Source: {dataSource === 'nlq' ? 'Search Query' : dataSource === 'brushing' ? 'Brushing' : 'Time Filter'}
       </div>
 
-      {/* Tooltips based on context state */}
-      {hoverInfo && !clickInfo && <MapTooltip info={hoverInfo} />}
-      {clickInfo && <MapTooltip info={clickInfo} />}
+      {/* Tooltip for hover (will only show for non-hexagon layers now) */}
+      {hoverInfo && <MapTooltip info={hoverInfo} />}
+
+      {/* Popup for click on hexagon layers */}
+      {showHexagonPopup && (
+        <HexagonPopup info={clickInfo} onClose={handleClosePopup} />
+      )}
 
       <DeckGL
         ref={deckRef}
@@ -162,11 +191,9 @@ const DeckMap = () => {
         effects={[lightingEffect]} // Assuming lightingEffect is stable
         initialViewState={INITIAL_VIEW_STATE} // Assuming INITIAL_VIEW_STATE is stable
         controller
-        // getTooltip={({object}) => object && `${object.points ? object.points.length : 0} events`} // Tooltip handled by MapTooltip component
-        onClick={(info) => {
-          // Simplified: always dispatch click info
-           dispatch({ type: ActionTypes.SET_CLICK_INFO, payload: info.picked ? info : null });
-        }}
+        // Tooltip handled by MapTooltip/HexagonPopup components based on hover/click state
+        // getTooltip={null} // Disable default DeckGL tooltip handling
+        onClick={handleClick} // Use our centralized click handler
         onHover={handleHover}
         onMouseMove={handleMouseMove}
       >

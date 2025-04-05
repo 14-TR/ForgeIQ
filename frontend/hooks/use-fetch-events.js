@@ -1,5 +1,6 @@
 // hooks/use-fetch-events.js
 import { useState, useCallback } from "react";
+import { API_BASE_URL } from "../config.js";
 
 // Calculate date range for last 5 years (increased from 2 years)
 const getDateRange = () => {
@@ -18,7 +19,7 @@ const { startDateStr, endDateStr } = getDateRange();
 console.log(`API Date Range: ${startDateStr} to ${endDateStr}`);
 
 // Base API URL
-const BASE_URL = "http://3.21.183.77:8000";
+const BASE_URL = API_BASE_URL;
 // Endpoints for different data types with date filtering
 const ENDPOINTS = {
   battles: `${BASE_URL}/battles?start_date=${startDateStr}&end_date=${endDateStr}&limit=40000`,
@@ -138,19 +139,32 @@ export const useFetchEvents = () => {
   const fetchAllEndpoints = useCallback(async () => {
     console.log("📡 Fetching all event data...");
     try {
+      console.log("[fetchAllEndpoints] Awaiting Promise.allSettled..."); // New log
       const results = await Promise.allSettled([
         fetchEndpoint(ENDPOINTS.battles, 'battle'),
         fetchEndpoint(ENDPOINTS.explosions, 'explosion'),
         fetchEndpoint(ENDPOINTS.viirs, 'viirs')
       ]);
+      console.log("[fetchAllEndpoints] Promise.allSettled finished.", results); // New log
 
       let allData = [];
       let errors = [];
+      console.log("[fetchAllEndpoints] Processing results..."); // New log
       results.forEach((result, index) => {
         const endpointName = Object.keys(ENDPOINTS)[index];
+        console.log(`[fetchAllEndpoints] Processing result for: ${endpointName}`); // New log
         if (result.status === 'fulfilled') {
-           console.log(`✅ ${endpointName} OK: ${result.value.length} events`);
+           // Check if result.value is actually an array before accessing length
+           const dataLength = Array.isArray(result.value) ? result.value.length : 'N/A (not an array)';
+           console.log(`✅ ${endpointName} OK: ${dataLength} events`);
           let dataToAdd = result.value;
+
+          // Ensure dataToAdd is an array before proceeding with sampling/pushing
+          if (!Array.isArray(dataToAdd)) {
+            console.warn(`❗ ${endpointName} FULFILLED but value is not an array:`, dataToAdd);
+            dataToAdd = []; // Treat as empty to prevent errors
+          }
+
           // Apply MAX_TOTAL_EVENTS limit logic (sampling)
           if (allData.length + dataToAdd.length > MAX_TOTAL_EVENTS) {
              const remainingSpace = Math.max(0, MAX_TOTAL_EVENTS - allData.length);
@@ -166,20 +180,27 @@ export const useFetchEvents = () => {
           }
           allData.push(...dataToAdd);
         } else {
-          console.error(`❌ ${endpointName} FAILED:`, result.reason);
-          errors.push(`${endpointName}: ${result.reason.message}`);
+          // Log the reason message safely
+          const reasonMsg = result.reason?.message || result.reason || 'Unknown error';
+          console.error(`❌ ${endpointName} FAILED:`, reasonMsg);
+          errors.push(`${endpointName}: ${reasonMsg}`);
         }
+        console.log(`[fetchAllEndpoints] Finished processing result for: ${endpointName}`); // New log
       });
 
       console.log(`✅ Total combined data fetched: ${allData.length} events`);
       if (errors.length > 0) {
+        const combinedErrorMsg = `Some endpoints failed: ${errors.join('; ')}`;
+        console.log(`[fetchAllEndpoints] Throwing combined error: ${combinedErrorMsg}`); // New log
         // Throw an error that combines individual failures
-        throw new Error(`Some endpoints failed: ${errors.join('; ')}`);
+        throw new Error(combinedErrorMsg);
       }
+      console.log("[fetchAllEndpoints] Returning combined data."); // New log
       return allData; // Return the combined data
 
     } catch (err) {
-      console.error("❌ Error in fetchAllEndpoints:", err);
+      // Ensure we log the error caught within fetchAllEndpoints itself
+      console.error("❌ Error within fetchAllEndpoints try block:", err); 
       throw err; // Re-throw the error to be caught by the provider
     }
   }, [fetchEndpoint]);

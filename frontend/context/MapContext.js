@@ -81,15 +81,15 @@ export const mapReducer = (state, action) => {
       return { ...state, loading: true, error: null };
     case ActionTypes.FETCH_EVENTS_SUCCESS:
       // When initial data loads, also set timeFilteredData initially
-      // (assuming TimeSlider logic will dispatch SET_TIME_FILTERED_DATA later)
-      return {
+      // and calculate activeData based on the default time-slider source.
+      const newState = {
         ...state,
         loading: false,
         eventData: action.payload,
-        // activeData: action.payload, // Set activeData based on initial load? Or wait for TimeSlider?
-        // timeFilteredData: action.payload, // Let TimeSlider handle initial filter?
+        timeFilteredData: action.payload, // Set timeFilteredData with the full dataset initially
         dataSource: 'time-slider', // Default to time slider data initially
        };
+       return calculateActiveData(newState); // Calculate activeData immediately
     case ActionTypes.FETCH_EVENTS_ERROR:
       return { ...state, loading: false, error: action.payload };
 

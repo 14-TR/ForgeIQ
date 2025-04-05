@@ -8,12 +8,13 @@ from pydantic import BaseModel
 
 # Local application imports
 # from aws_secret_mgt import get_db_credentials  # Assuming this is correctly located/managed
-from shared.secrets.aws_secret_mgt import get_db_credentials # Corrected import path
-from db.execute_query import execute_query
+# from shared.secrets.aws_secret_mgt import get_db_credentials # Corrected import path - OLD WAY
+from shared.secrets.aws_secret_mgt import AWSSecretManager # Import the class
+from .db.execute_query import execute_query
 # from db_connect import DBConnection # Removed as unused
-from nlq.clean_query import clean_query
-from nlq.openai_query import openai_query
-from nlq.validate_query import validate_query
+from .nlq.clean_query import clean_query
+from .nlq.openai_query import openai_query
+from .nlq.validate_query import validate_query
 
 # Initialize FastAPI
 app = FastAPI()
@@ -37,7 +38,10 @@ app.add_middleware(
 )
 
 # Ensure we retrieve DB credentials on startup
-DB_CREDENTIALS = get_db_credentials()
+# DB_CREDENTIALS = get_db_credentials() # OLD WAY
+secret_manager = AWSSecretManager() # Create an instance
+DB_CREDENTIALS = secret_manager.get_db_credentials() # Call the method
+
 if not DB_CREDENTIALS:
     raise RuntimeError("❌ Failed to retrieve database credentials.")
 
@@ -89,7 +93,8 @@ def get_recent_battles():
                    source, source_scale, notes, fatalities
             FROM battles
             WHERE year = {most_recent_year}  -- Filter by the most recent year
-            ORDER BY event_date DESC;
+            ORDER BY event_date DESC
+            LIMIT 100;
         """
 
         df_result = execute_query(query)
@@ -107,7 +112,8 @@ def get_explosions():
                    country, admin1, admin2, admin3, location, latitude, longitude, geo_precision,
                    source, source_scale, notes, fatalities
             FROM explosions
-            ORDER BY event_date DESC;
+            ORDER BY event_date DESC
+            LIMIT 100;
         """
         df_result = execute_query(query)
         return df_result.to_dict(orient="records") if not df_result.empty else []
@@ -122,7 +128,8 @@ def get_viirs_data():
                satellite, instrument, confidence, daynight, event_date::TEXT, 
                created_at::TEXT
         FROM viirs_data
-        ORDER BY event_date DESC, created_at DESC;
+        ORDER BY event_date DESC, created_at DESC
+        LIMIT 100;
     """
 
     try:

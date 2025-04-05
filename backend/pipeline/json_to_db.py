@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2.extras import execute_values, RealDictCursor
 from typing import Dict, List, Any, Optional
 import logging
-from db_connect import DBConnection
+from ..db.db_connect import DBConnection
 from .utils import setup_logger
 
 class JsonToDatabase:

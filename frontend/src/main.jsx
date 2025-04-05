@@ -4,8 +4,8 @@ import ReactDOM from 'react-dom/client';
 // Import the Map Provider
 import { MapProvider } from '../context/MapProvider.jsx'; // Path relative to src/
 
-// Import the main page component
-import DeckMap from '../pages/deck-map.jsx'; // Path relative to src/
+// Import the main App component
+import App from './App.jsx'; 
 
 // Optional: Import global CSS or MUI baseline if needed
 // import './index.css'; 
@@ -17,9 +17,8 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <MapProvider> {/* Wrap the main component with the provider */}
-        <DeckMap />
-        {/* You could also have an <App /> component here that renders DeckMap or handles routing */}
+      <MapProvider> {/* Provider now wraps App */}
+        <App />
       </MapProvider>
     </React.StrictMode>,
   );

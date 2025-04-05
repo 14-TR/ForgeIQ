@@ -5,7 +5,7 @@ import { Rnd } from "react-rnd";
 import CloseIcon from "@mui/icons-material/Close";
 
 // Import context and actions
-import { MapContext, ActionTypes } from "../../context/MapContext"; // Adjust path
+import { MapContext, ActionTypes } from "../../context/MapContext";  // Get both from MapContext
 
 /**
  * Panel for analysis controls (brushing, chart visibility)
@@ -22,6 +22,12 @@ const AnalysisControlPanel = () => {
       layerInfo // Use layerInfo from context for chart styling
   } = state;
 
+  console.log(
+    "AnalysisControlPanel: Rendering.", 
+    { showChart, brushingEnabled }, 
+    "Active data received (first 5):", activeData?.slice(0, 5) // Log first 5 items
+  ); 
+
   // --- Handlers --- (Dispatch actions)
   const handleToggleBrushing = (event) => {
     dispatch({ type: ActionTypes.SET_BRUSHING_ENABLED, payload: event.target.checked });
@@ -37,16 +43,20 @@ const AnalysisControlPanel = () => {
 
   // --- Chart Data Preparation --- (Memoized)
   const chartData = useMemo(() => {
+    console.log("AnalysisControlPanel: useMemo START. activeData length:", activeData?.length); 
     if (!activeData || activeData.length === 0) {
+        console.log("AnalysisControlPanel: useMemo - activeData is empty.");
         return [];
     }
     
     console.time('Prepare Chart Data');
     const dateCounts = {};
+    let datesProcessed = new Set(); // Keep track of unique dates found
     activeData.forEach((item) => {
       if (item && item.event_date) {
         try {
             const dateStr = new Date(item.event_date).toISOString().slice(0, 10);
+            datesProcessed.add(dateStr); // Add date to the Set
             const eventType = String(item.event_type || '').toLowerCase();
 
             if (!dateCounts[dateStr]) {
@@ -78,6 +88,9 @@ const AnalysisControlPanel = () => {
       }
     });
     const sortedData = Object.values(dateCounts).sort((a, b) => a.date.localeCompare(b.date));
+    console.log("AnalysisControlPanel: Dates processed in useMemo:", Array.from(datesProcessed)); // Log unique dates found
+    console.log("AnalysisControlPanel: Calculated dateCounts object:", dateCounts); // Log the intermediate counts
+    console.log("AnalysisControlPanel: useMemo END. Final sorted chartData:", sortedData); 
     console.timeEnd('Prepare Chart Data');
     return sortedData;
   }, [activeData]);
@@ -155,6 +168,7 @@ const AnalysisControlPanel = () => {
       </Box>
 
        {/* Resizable Chart Window (Positioned absolutely) */}
+      {console.log("AnalysisControlPanel: Checking condition to render Rnd. showChart:", showChart)} {/* Log before Rnd */}
       {showChart && (
         <Rnd
           // disableDragging={true} // Allow dragging
@@ -196,6 +210,7 @@ const AnalysisControlPanel = () => {
              <Typography variant="subtitle1" align="center" gutterBottom sx={{ color: '#eee', mt: -1, mb: 1 }}>
                  Event Time Series
               </Typography>
+             {console.log("AnalysisControlPanel: Checking condition to render chart. chartData length:", chartData?.length)} {/* Log before chart */}
              {chartData.length > 0 ? (
                  <ResponsiveContainer width="100%" height="calc(100% - 40px)"> 
                  <LineChart data={chartData} margin={{ top: 5, right: 25, bottom: 45, left: 10 }}>

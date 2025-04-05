@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { Box, Typography, Grid, Button, Paper, Divider } from '@mui/material';
 
 // Import chart components
-import { EventBarChart, EventPieChart, ChartPanel } from './chart-components';
+import { EventBarChart, EventPieChart, ChartPanel } from '../components/visuals/chart-components.jsx';
 
 // Import table component
-import DataTable from './data-table';
+import DataTable from '../components/visuals/data-table.jsx';
 
 // Import feedback components
-import { LoadingSpinner, LoadingBar, Notification } from './feedback-components';
+import { LoadingSpinner, LoadingBar, Notification } from '../components/ui/feedback-components.jsx';
 
 // Import modal components
-import { ConfirmDialog, ContentModal, InfoDialog } from './modal-components';
+import { ConfirmDialog, ContentModal, InfoDialog } from '../components/ui/modal-components.jsx';
 
 // Import form components
 import {
@@ -24,10 +24,10 @@ import {
   SliderInput,
   SwitchInput,
   DateInput
-} from './form-components';
+} from '../components/forms/form-components.jsx';
 
 // Import export components
-import { ExportButton, ShareButton } from './export-components';
+import { ExportButton, ShareButton } from '../components/export/export-components.jsx';
 
 // Sample data for charts
 const chartData = [

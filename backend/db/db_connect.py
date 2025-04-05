@@ -3,7 +3,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 # Local application imports
-from aws_secret_mgt import AWSSecretManager  # Get credentials from AWS
+# from aws_secret_mgt import AWSSecretManager  # OLD WAY
+from shared.secrets.aws_secret_mgt import AWSSecretManager # Get credentials from AWS
 
 class DBConnection:
     def __init__(self):
