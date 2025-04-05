@@ -1,240 +1,241 @@
-import React from "react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label
-} from "recharts";
+import React, { useContext, useMemo } from "react";
+import { Box, Typography, Slider, FormControlLabel, Switch, Divider, Paper, IconButton } from "@mui/material";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from "recharts";
 import { Rnd } from "react-rnd";
 import CloseIcon from "@mui/icons-material/Close";
-import IconButton from "@mui/material/IconButton";
 
-const AnalysisControlPanel = ({
-  brushingEnabled,
-  setBrushingEnabled,
-  brushingRadius,
-  setBrushingRadius,
-  showChart,
-  setShowChart,
-  displayData,
-  layerInfo = {} // Default empty object if not provided
-}) => {
-  const toggleBrushing = () => setBrushingEnabled(!brushingEnabled);
-  const handleRadiusChange = (e) => setBrushingRadius(Number(e.target.value));
-  const toggleChart = () => setShowChart(!showChart);
+// Import context and actions
+import { MapContext, ActionTypes } from "../../context/MapContext"; // Adjust path
 
-  // Default colors if layerInfo is not provided
-  const battleColor = layerInfo.battles?.color || "#8B0000"; // Dark red
-  const explosionColor = layerInfo.explosions?.color || "#FF8C00"; // Dark orange
-  const viirsColor = layerInfo.viirs?.color || "#228B22"; // Forest green
-  const totalColor = "#4169E1"; // Royal blue
-  
-  // Layer visibility from layer info (or default to true if not provided)
-  const showBattlesLayer = layerInfo.battles?.visible !== undefined ? layerInfo.battles.visible : true;
-  const showExplosionsLayer = layerInfo.explosions?.visible !== undefined ? layerInfo.explosions.visible : true;
-  const showViirsLayer = layerInfo.viirs?.visible !== undefined ? layerInfo.viirs.visible : true;
+/**
+ * Panel for analysis controls (brushing, chart visibility)
+ * Displays a time series chart based on active data from context.
+ */
+const AnalysisControlPanel = () => {
+  // Get state and dispatch from context
+  const { state, dispatch } = useContext(MapContext);
+  const { 
+      brushingEnabled, 
+      brushingRadius, 
+      showChart, 
+      activeData, // Use activeData from context for the chart
+      layerInfo // Use layerInfo from context for chart styling
+  } = state;
 
-  // Prepare chart data with separate counts for each event type
-  let chartData = [];
-  if (displayData && displayData.length > 0) {
-    const dateCounts = {};
-    
-    displayData.forEach((item) => {
-      if (item.event_date) {
-        const dateStr = item.event_date.slice(0, 10);
-        const eventType = String(item.event_type || '').toLowerCase();
-        
-        if (!dateCounts[dateStr]) {
-          dateCounts[dateStr] = {
-            date: dateStr,
-            battles: 0,
-            explosions: 0,
-            viirs: 0,
-            total: 0
-          };
-        }
-        
-        // Increment the appropriate event type counter
-        if (eventType === 'battle' || eventType === 'battles') {
-          dateCounts[dateStr].battles += 1;
-          dateCounts[dateStr].total += 1; // Only count supported types in total
-        } else if (eventType === 'explosion' || eventType === 'explosions') {
-          dateCounts[dateStr].explosions += 1;
-          dateCounts[dateStr].total += 1; // Only count supported types in total
-        } else if (eventType === 'viirs') {
-          dateCounts[dateStr].viirs += 1;
-          dateCounts[dateStr].total += 1; // Only count supported types in total
-        }
-        // Other event types are ignored and not counted
-      }
-    });
-
-    chartData = Object.values(dateCounts)
-      .sort((a, b) => (a.date > b.date ? 1 : -1));
-  }
-
-  const panelStyles = {
-    backgroundColor: "#2c2c2c",
-    color: "#f5f5f5",
-    padding: "12px",
-    borderRadius: "8px",
-    minWidth: "250px",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.5)",
+  // --- Handlers --- (Dispatch actions)
+  const handleToggleBrushing = (event) => {
+    dispatch({ type: ActionTypes.SET_BRUSHING_ENABLED, payload: event.target.checked });
   };
 
+  const handleRadiusChange = (event, newValue) => {
+    dispatch({ type: ActionTypes.SET_BRUSHING_RADIUS, payload: newValue });
+  };
+
+  const handleToggleChart = (event) => {
+    dispatch({ type: ActionTypes.SET_SHOW_CHART, payload: event.target.checked });
+  };
+
+  // --- Chart Data Preparation --- (Memoized)
+  const chartData = useMemo(() => {
+    if (!activeData || activeData.length === 0) {
+        return [];
+    }
+    
+    console.time('Prepare Chart Data');
+    const dateCounts = {};
+    activeData.forEach((item) => {
+      if (item && item.event_date) {
+        try {
+            const dateStr = new Date(item.event_date).toISOString().slice(0, 10);
+            const eventType = String(item.event_type || '').toLowerCase();
+
+            if (!dateCounts[dateStr]) {
+                dateCounts[dateStr] = { date: dateStr, battles: 0, explosions: 0, viirs: 0, nlq: 0, total: 0 };
+            }
+
+            let counted = false;
+            if (eventType === 'battle' || eventType === 'battles') {
+                dateCounts[dateStr].battles += 1;
+                counted = true;
+            } else if (eventType === 'explosion' || eventType === 'explosions') {
+                dateCounts[dateStr].explosions += 1;
+                counted = true;
+            } else if (eventType === 'viirs') {
+                dateCounts[dateStr].viirs += 1;
+                counted = true;
+            } else if (eventType === 'nlq_result') { // Count NLQ results separately
+                 dateCounts[dateStr].nlq += 1;
+                 counted = true;
+            }
+            
+            if(counted) {
+                 dateCounts[dateStr].total += 1; // Increment total only if it belongs to a tracked type
+            }
+        } catch (e) {
+            // Ignore items with invalid dates
+            // console.warn(`Invalid date format for charting: ${item.event_date}`, e);
+        }
+      }
+    });
+    const sortedData = Object.values(dateCounts).sort((a, b) => a.date.localeCompare(b.date));
+    console.timeEnd('Prepare Chart Data');
+    return sortedData;
+  }, [activeData]);
+
+  // --- Chart Styling --- (Based on layerInfo from context)
+  const battleColor = useMemo(() => layerInfo.battles?.color || "#dc143c", [layerInfo.battles]);
+  const explosionColor = useMemo(() => layerInfo.explosions?.color || "#ff8c00", [layerInfo.explosions]);
+  const viirsColor = useMemo(() => layerInfo.viirs?.color || "#228b22", [layerInfo.viirs]);
+  const nlqColor = useMemo(() => layerInfo.nlq_results?.color || "#9370db", [layerInfo.nlq_results]); // Color for NLQ
+  const totalColor = useMemo(() => "#4169E1", []); // Royal blue for total
+
+  const showBattlesLine = useMemo(() => state.showBattlesLayer, [state.showBattlesLayer]);
+  const showExplosionsLine = useMemo(() => state.showExplosionsLayer, [state.showExplosionsLayer]);
+  const showViirsLine = useMemo(() => state.showViirsLayer, [state.showViirsLayer]);
+  const showNlqLine = useMemo(() => state.showNlqLayer, [state.showNlqLayer]); // Control NLQ line visibility
+
   return (
-    <div style={panelStyles}>
-      <h3>Analysis Controls</h3>
+    <> {/* Use Fragment as Rnd chart is positioned absolutely outside the panel flow */}
+      {/* Control Panel Box */}
+      <Box sx={{ 
+          backgroundColor: "#2c2c2c",
+          color: "#f5f5f5",
+          padding: "16px",
+          borderRadius: "8px",
+          minWidth: "250px",
+          boxShadow: 3
+      }}>
+        <Typography variant="h6" gutterBottom component="h3">
+          Analysis Controls
+        </Typography>
 
-      <div style={{ marginBottom: "10px" }}>
-        <input
-          type="checkbox"
-          checked={brushingEnabled}
-          onChange={toggleBrushing}
-          id="brushing-chk"
+        {/* Brushing Toggle */}
+        <FormControlLabel
+          control={
+            <Switch 
+              checked={brushingEnabled}
+              onChange={handleToggleBrushing}
+              size="small"
+            />
+          }
+          label={<Typography variant="body2">Enable Brushing</Typography>}
+          sx={{ mb: 1 }}
         />
-        <label htmlFor="brushing-chk" style={{ marginLeft: "4px" }}>
-          Enable Brushing
-        </label>
-      </div>
 
-      <div style={{ marginBottom: "10px" }}>
-        <label>Brushing Radius: </label>
-        <input
-          type="range"
-          min="100"
-          max="10000"
-          step="100"
-          value={brushingRadius}
-          onChange={handleRadiusChange}
+        {/* Brushing Radius Slider */}
+        <Box sx={{ mb: 2, opacity: brushingEnabled ? 1 : 0.5 }}>
+          <Typography gutterBottom variant="body2">Brushing Radius: {brushingRadius}m</Typography>
+          <Slider
+            aria-label="Brushing Radius"
+            value={brushingRadius}
+            onChange={handleRadiusChange}
+            valueLabelDisplay="auto"
+            step={100}
+            min={100}
+            max={10000}
+            size="small"
+            disabled={!brushingEnabled}
+            sx={{ color: "#8884d8" }}
+          />
+        </Box>
+
+        <Divider sx={{ my: 2, borderColor: '#555' }} />
+
+        {/* Show Chart Toggle */}
+        <FormControlLabel
+          control={
+            <Switch 
+              checked={showChart}
+              onChange={handleToggleChart}
+              size="small"
+            />
+          }
+          label={<Typography variant="body2">Show Time Series Chart</Typography>}
         />
-        <span> {brushingRadius}</span>
-      </div>
+      </Box>
 
-      <hr style={{ margin: "10px 0" }} />
-
-      <div style={{ marginBottom: "6px" }}>
-        <input
-          type="checkbox"
-          checked={showChart}
-          onChange={toggleChart}
-          id="chart-chk"
-        />
-        <label htmlFor="chart-chk" style={{ marginLeft: "4px" }}>
-          Show Time Series Chart
-        </label>
-      </div>
-
-      {showChart && chartData.length > 0 && (
-        
+       {/* Resizable Chart Window (Positioned absolutely) */}
+      {showChart && (
         <Rnd
-          disableDragging={true}
+          // disableDragging={true} // Allow dragging
           enableResizing={{
             top: true, right: true, bottom: true, left: true,
             topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
           }}
           default={{
+            x: window.innerWidth * 0.5, // Start somewhat centered horizontally
+            y: window.innerHeight - 450, // Start near bottom
             width: 600,
             height: 400,
           }}
+          minWidth={300}
+          minHeight={250}
+          bounds="window" // Keep within window bounds
           style={{
-            position: "absolute",
-            bottom: "5vh",
-            right: "5vw",
-            backgroundColor: "rgba(255,255,255,0.9)",
+            // position: "absolute", // Rnd handles positioning
+            backgroundColor: "rgba(44, 44, 44, 0.95)", // Darker background
             borderRadius: "8px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
-            padding: "10px",
-            zIndex: 1000,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+            border: "1px solid #555",
+            zIndex: 1200, // Ensure it's above most other elements
           }}
         >
-          <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <Paper sx={{ width: "100%", height: "100%", padding: "16px", boxSizing: 'border-box', backgroundColor: 'transparent', color: '#f5f5f5', overflow:'hidden' }} elevation={0}>
             <IconButton 
-              onClick={() => setShowChart(false)}
-              style={{ 
-                position: "absolute", 
-                top: 0, 
-                right: 0, 
-                zIndex: 1001,
-                backgroundColor: "rgba(255,255,255,0.7)"
+              onClick={() => dispatch({ type: ActionTypes.SET_SHOW_CHART, payload: false })}
+              sx={{ 
+                position: "absolute", top: 4, right: 4, zIndex: 1, 
+                color: '#aaa', backgroundColor: 'rgba(0,0,0,0.2)',
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.4)' }
               }}
               size="small"
             >
               <CloseIcon fontSize="small" />
             </IconButton>
             
-            <div style={{ width: "100%", height: "100%", paddingTop: "10px" }}>
-              <h4 style={{ textAlign: "center", margin: "0 0 10px 0" }}>Event Time Series by Type</h4>
-              <ResponsiveContainer width="100%" height="85%">
-                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 25, left: 20 }}>
-                  <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-                  <XAxis 
-                    dataKey="date" 
-                    angle={-45} 
-                    textAnchor="end" 
-                    height={60}
-                    tick={{ fontSize: 10 }}
-                  >
-                    <Label value="Date" position="insideBottom" offset={-15} />
-                  </XAxis>
-                  <YAxis>
-                    <Label value="Event Count" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
-                  </YAxis>
-                  <Tooltip />
-                  <Legend verticalAlign="top" />
-                  {showBattlesLayer && (
-                    <Line 
-                      type="monotone" 
-                      dataKey="battles" 
-                      stroke={battleColor}
-                      name="Battles"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
+             <Typography variant="subtitle1" align="center" gutterBottom sx={{ color: '#eee', mt: -1, mb: 1 }}>
+                 Event Time Series
+              </Typography>
+             {chartData.length > 0 ? (
+                 <ResponsiveContainer width="100%" height="calc(100% - 40px)"> 
+                 <LineChart data={chartData} margin={{ top: 5, right: 25, bottom: 45, left: 10 }}>
+                   <CartesianGrid stroke="#666" strokeDasharray="3 3" />
+                   <XAxis 
+                     dataKey="date" 
+                     angle={-45} 
+                     textAnchor="end" 
+                     height={60}
+                     tick={{ fontSize: 10, fill: '#ccc' }}
+                     stroke="#aaa"
+                   >
+                    {/* <Label value="Date" position="insideBottom" offset={-15} /> */}
+                   </XAxis>
+                   <YAxis tick={{ fontSize: 10, fill: '#ccc' }} stroke="#aaa">
+                     <Label value="Event Count" angle={-90} position="insideLeft" style={{ textAnchor: 'middle', fill: '#ccc' }} />
+                   </YAxis>
+                   <Tooltip 
+                      contentStyle={{ backgroundColor: '#222', border: '1px solid #555'}} 
+                      labelStyle={{ color: '#eee' }} 
+                      itemStyle={{ fontSize: '0.8em' }}
                     />
-                  )}
-                  {showExplosionsLayer && (
-                    <Line 
-                      type="monotone" 
-                      dataKey="explosions" 
-                      stroke={explosionColor}
-                      name="Explosions"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                    />
-                  )}
-                  {showViirsLayer && (
-                    <Line 
-                      type="monotone" 
-                      dataKey="viirs" 
-                      stroke={viirsColor}
-                      name="VIIRS"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                    />
-                  )}
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke={totalColor}
-                    name="Total (Battles+Explosions+VIIRS)"
-                    strokeDasharray="3 3"
-                    strokeWidth={1}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                   <Legend wrapperStyle={{ fontSize: '0.8em', paddingTop: '10px' }} />
+                   {/* Conditionally render lines based on context state */}
+                   {showBattlesLine && <Line type="monotone" dataKey="battles" stroke={battleColor} name="Battles" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />} 
+                   {showExplosionsLine && <Line type="monotone" dataKey="explosions" stroke={explosionColor} name="Explosions" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />}
+                   {showViirsLine && <Line type="monotone" dataKey="viirs" stroke={viirsColor} name="VIIRS" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />}
+                   {showNlqLine && <Line type="monotone" dataKey="nlq" stroke={nlqColor} name="NLQ" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />}
+                   <Line type="monotone" dataKey="total" stroke={totalColor} name="Total" strokeDasharray="3 3" strokeWidth={1} dot={false} />
+                 </LineChart>
+               </ResponsiveContainer>
+             ) : (
+                  <Typography variant="body2" align="center" sx={{ color: '#aaa', mt: 4 }}>
+                     No data available for the current filter.
+                 </Typography>
+             )}
+          </Paper>
         </Rnd>
-
       )}
-
-      {showChart && chartData.length === 0 && (
-        <p style={{ marginTop: "12px", color: "#ff8787" }}>
-          No valid date data found (check event_date fields).
-        </p>
-      )}
-    </div>
+    </> 
   );
 };
 
