@@ -1,0 +1,72 @@
+{
+  "translator.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "db_schema": "Table Name: transactions\nColumns:\n  PLACEKEY (TEXT)\n  SAFEGRAPH_BRAND_IDS (TEXT)\n  BRANDS (TEXT)\n  SPEND_DATE_RANGE_START (TEXT)\n  SPEND_DATE_RANGE_END (TEXT)\n  RAW_TOTAL_SPEND (REAL)\n  RAW_NUM_TRANSACTIONS (INTEGER)\n  RAW_NUM_CUSTOMERS (INTEGER)\n  MEDIAN_SPEND_PER_TRANSACTION (REAL)\n  MEDIAN_SPEND_PER_CUSTOMER (REAL)\n  ONLINE_TRANSACTIONS (INTEGER)\n  ONLINE_SPEND (REAL)\n  CUSTOMER_HOME_CITY (TEXT)",
+        "question": "List brands with more than 500 transactions.",
+        "reasoning": "We need to retrieve the brands that have more than 500 transactions from the 'transactions' table.",
+        "sql_template": "SELECT BRANDS FROM transactions WHERE RAW_NUM_TRANSACTIONS > ?",
+        "sql_params": "[\"500\"]"
+      },
+      {
+        "augmented": true,
+        "db_schema": "Table Name: transactions\nColumns:\n  PLACEKEY (TEXT)\n  SAFEGRAPH_BRAND_IDS (TEXT)\n  BRANDS (TEXT)\n  SPEND_DATE_RANGE_START (TEXT)\n  SPEND_DATE_RANGE_END (TEXT)\n  RAW_TOTAL_SPEND (REAL)\n  RAW_NUM_TRANSACTIONS (INTEGER)\n  RAW_NUM_CUSTOMERS (INTEGER)\n  MEDIAN_SPEND_PER_TRANSACTION (REAL)\n  MEDIAN_SPEND_PER_CUSTOMER (REAL)\n  ONLINE_TRANSACTIONS (INTEGER)\n  ONLINE_SPEND (REAL)\n  CUSTOMER_HOME_CITY (TEXT)",
+        "question": "How many records are there for Walmart?",
+        "reasoning": "We need to count the number of records for the brand 'Walmart' in the transactions table.",
+        "sql_template": "SELECT COUNT(*) FROM transactions WHERE BRANDS LIKE ?",
+        "sql_params": "[\"%Walmart%\"]"
+      },
+      {
+        "augmented": true,
+        "db_schema": "Table Name: transactions\nColumns:\n  PLACEKEY (TEXT)\n  SAFEGRAPH_BRAND_IDS (TEXT)\n  BRANDS (TEXT)\n  SPEND_DATE_RANGE_START (TEXT)\n  SPEND_DATE_RANGE_END (TEXT)\n  RAW_TOTAL_SPEND (REAL)\n  RAW_NUM_TRANSACTIONS (INTEGER)\n  RAW_NUM_CUSTOMERS (INTEGER)\n  MEDIAN_SPEND_PER_TRANSACTION (REAL)\n  MEDIAN_SPEND_PER_CUSTOMER (REAL)\n  ONLINE_TRANSACTIONS (INTEGER)\n  ONLINE_SPEND (REAL)\n  CUSTOMER_HOME_CITY (TEXT)",
+        "question": "List all unique brands.",
+        "reasoning": "We need to retrieve all unique brands from the 'transactions' table.",
+        "sql_template": "SELECT DISTINCT BRANDS FROM transactions",
+        "sql_params": "[]"
+      },
+      {
+        "question": "Which 5 brands had the highest total spend?",
+        "sql_template": "SELECT BRANDS, RAW_TOTAL_SPEND FROM transactions ORDER BY RAW_TOTAL_SPEND DESC LIMIT ?",
+        "sql_params": [
+          "5"
+        ]
+      }
+    ],
+    "signature": {
+      "instructions": "Given the database schema below:\n{db_schema}\n\nWrite a valid SQLite query template and its parameters to answer the question: {question}\nUse '?' as placeholders for literal values.\nEnsure you only use table and column names exactly as provided in the schema.\nOutput the SQL template in the 'sql_template' field.\nOutput the list of parameter values (as strings) in the 'sql_params' field. Use JSON list format.\nIMPORTANT: For filtering on text columns like BRANDS where the user input might be slightly different from the database value (e.g., 'Dominos' vs 'Domino's Pizza'), use the LIKE operator and surround the parameter value with '%' wildcards.\nExample (Exact Match): question=\"Show brands with spend over 100\" -> sql_template=\"SELECT BRANDS FROM transactions WHERE RAW_TOTAL_SPEND > ?\", sql_params=['100']\nExample (LIKE Match): question=\"Show all data for Dominos\" -> sql_template=\"SELECT * FROM transactions WHERE BRANDS LIKE ?\", sql_params=['%Dominos%']\nExample (Exact Match): question=\"List all brands\" -> sql_template=\"SELECT DISTINCT BRANDS FROM transactions\", sql_params=[]",
+      "fields": [
+        {
+          "prefix": "Db Schema:",
+          "description": "${db_schema}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Sql Template:",
+          "description": "${sql_template}"
+        },
+        {
+          "prefix": "Sql Params:",
+          "description": "${sql_params}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "2.6.17",
+      "cloudpickle": "3.1"
+    }
+  }
+}
