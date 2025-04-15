@@ -1,0 +1,2 @@
+[console_scripts]
+forgeiq-server = backend.cli:app
