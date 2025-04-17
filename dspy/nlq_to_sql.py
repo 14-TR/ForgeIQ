@@ -120,6 +120,18 @@ Example (No Params): question="List all countries with explosions" -> sql_templa
         sql_template = getattr(prediction, 'sql_template', None)
         params_list = []
 
+        # --- Clean SQL Template (Remove Markdown Fences) --- 
+        if isinstance(sql_template, str):
+            sql_template = sql_template.strip()
+            if sql_template.startswith("```sql"):
+                sql_template = sql_template[6:] # Remove ```sql
+            if sql_template.startswith("```"):
+                 sql_template = sql_template[3:] # Remove ```
+            if sql_template.endswith("```"):
+                sql_template = sql_template[:-3] # Remove trailing ```
+            sql_template = sql_template.strip() # Remove leading/trailing whitespace
+
+        # --- Process Parameters --- 
         # Attempt to parse the sql_params string as JSON list
         raw_params = getattr(prediction, 'sql_params', '[]') # Default to string '[]'
         try:
