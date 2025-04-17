@@ -1,5 +1,5 @@
 # Standard library imports
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 # Third-party imports
 from fastapi import FastAPI, HTTPException
@@ -11,7 +11,7 @@ from pydantic import BaseModel
 # from shared.secrets.aws_secret_mgt import get_db_credentials # Corrected import path - OLD WAY
 from shared.secrets.aws_secret_mgt import AWSSecretManager # Import the class
 from .db.execute_query import execute_query
-# from db_connect import DBConnection # Removed as unused
+from .db.db_connect import DBConnection # Import DBConnection
 from .nlq.clean_query import clean_query
 from .nlq.openai_query import openai_query
 from .nlq.validate_query import validate_query
@@ -168,3 +168,42 @@ def process_nlq(request: QueryRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"NLQ processing error: {str(e)}")
+
+# --- Database Schema Endpoint ---
+@app.get("/schema")
+def get_database_schema() -> Dict[str, Dict[str, str]]:
+    """
+    Retrieves the schema (table names and column names with data types) 
+    for the 'public' schema in the connected PostgreSQL database.
+    """
+    schema_query = """
+    SELECT table_name, column_name, data_type 
+    FROM information_schema.columns 
+    WHERE table_schema = 'public'
+    ORDER BY table_name, ordinal_position;
+    """
+    schema = {}
+    try:
+        # Use DBConnection directly to get dictionary results
+        with DBConnection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(schema_query)
+                results = cursor.fetchall() # RealDictCursor returns list of dicts
+                
+        if not results:
+            raise HTTPException(status_code=404, detail="No tables found in public schema.")
+
+        # Structure the schema information
+        for row in results:
+            table = row['table_name']
+            column = row['column_name']
+            dtype = row['data_type']
+            if table not in schema:
+                schema[table] = {}
+            schema[table][column] = dtype
+            
+        return schema
+    except Exception as e:
+        # Log the error details if possible
+        print(f"Error fetching database schema: {e}") 
+        raise HTTPException(status_code=500, detail=f"Error fetching database schema: {str(e)}")
